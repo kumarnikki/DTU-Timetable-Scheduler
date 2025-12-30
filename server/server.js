@@ -1,31 +1,27 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-// Load Config (Support both Local config.js and Production Env Vars)
+// Load Config
 let config = {
-    EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASS: process.env.EMAIL_PASS
+    RESEND_API_KEY: process.env.RESEND_API_KEY
 };
 
 try {
     const localConfig = require('./config');
-    // If local config exists, use it as fallback or override
-    config.EMAIL_USER = config.EMAIL_USER || localConfig.EMAIL_USER;
-    config.EMAIL_PASS = config.EMAIL_PASS || localConfig.EMAIL_PASS;
+    config.RESEND_API_KEY = config.RESEND_API_KEY || localConfig.RESEND_API_KEY;
 } catch (e) {
-    // config.js not found (Expected in Production/Render)
+    // config.js not found
 }
 
-// FORCE LOGGING FOR DEPLOYMENT DEBUGGING
+// DIAGNOSTIC LOG
 console.log('--- SYSTEM STATUS ---');
-console.log('EMAIL_USER:', config.EMAIL_USER ? `${config.EMAIL_USER.substring(0,3)}... (OK)` : 'MISSING!');
-console.log('EMAIL_PASS:', config.EMAIL_PASS ? '******* (OK)' : 'MISSING!');
+console.log('RESEND_API_KEY:', config.RESEND_API_KEY ? '******* (OK)' : 'MISSING!');
 console.log('---------------------');
 
+const resend = new Resend(config.RESEND_API_KEY);
 const app = express();
-// Render requires binding to process.env.PORT
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -35,38 +31,14 @@ app.use(bodyParser.json());
 // In-memory store for OTPs
 const otpStore = new Map();
 
-// Email Transporter (Gmail)
-// Deep Debugging enabled to see exactly where it stops
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: config.EMAIL_USER,
-        pass: config.EMAIL_PASS
-    },
-    debug: true, // Show full SMTP conversation in logs
-    logger: true, // Log to console
-    connectionTimeout: 20000, 
-    greetingTimeout: 20000,
-    socketTimeout: 40000
-});
-
-// Diagnostic Endpoint - Check if server can talk to Google
+// Diagnostic Endpoint
 app.get('/api/test-connection', async (req, res) => {
-    console.log('--- Starting SMTP Connection Test ---');
     try {
-        await transporter.verify();
-        console.log('--- SMTP Test Success ---');
-        res.json({ success: true, message: 'SMTP connection is healthy!' });
+        if (!config.RESEND_API_KEY) throw new Error('API Key is missing');
+        // Resend doesn't have a simple .verify(), so we'll just check the key presence
+        res.json({ success: true, message: 'Resend service is configured!' });
     } catch (error) {
-        console.error('--- SMTP Test Failed ---');
-        console.error('Code:', error.code);
-        console.error('Full Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: error.message, 
-            code: error.code,
-            command: error.command 
-        });
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
@@ -78,44 +50,33 @@ app.post('/api/send-otp', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Store OTP (valid for 5 minutes)
-    otpStore.set(email, {
-        otp: otp,
-        timestamp: Date.now()
-    });
+    otpStore.set(email, { otp, timestamp: Date.now() });
 
     const isRegistration = type === 'register';
-    const subject = isRegistration ? 'DTU Scheduler - Verify Your Email' : 'DTU Scheduler - Password Reset OTP';
-    const title = isRegistration ? 'Welcome to DTU Scheduler!' : 'Password Reset Request';
-    const messageBody = isRegistration 
-        ? 'Please accept this verification code to complete your registration.' 
-        : 'You requested to reset your password for the DTU Timetable Scheduler.';
-
-    const mailOptions = {
-        from: config.EMAIL_USER,
-        to: email,
-        subject: subject,
-        html: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #6366f1;">${title}</h2>
-                <p>${messageBody}</p>
-                <p>Your Verification Code is:</p>
-                <h1 style="letter-spacing: 5px; background: #f3f4f6; padding: 10px; display: inline-block; border-radius: 5px;">${otp}</h1>
-                <p>This code is valid for 5 minutes.</p>
-                <p>If you did not request this, please ignore this email.</p>
-            </div>
-        `
-    };
-
+    const subject = isRegistration ? 'DTU Scheduler - Verify Email' : 'DTU Scheduler - Password Reset';
+    
     try {
-        await transporter.sendMail(mailOptions);
+        const { data, error } = await resend.emails.send({
+            from: 'onboarding@resend.dev', // Use Resend's default sender for now
+            to: email,
+            subject: subject,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                    <h2 style="color: #6366f1;">${isRegistration ? 'Welcome!' : 'Reset Password'}</h2>
+                    <p>Your Verification Code is:</p>
+                    <h1 style="letter-spacing: 5px; background: #f3f4f6; padding: 10px; display: inline-block; border-radius: 5px;">${otp}</h1>
+                    <p>Valid for 5 minutes.</p>
+                </div>
+            `
+        });
+
+        if (error) throw error;
+
         console.log(`OTP sent to ${email}`);
         res.json({ success: true, message: 'OTP sent successfully' });
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('Resend Error:', error);
         res.status(500).json({ success: false, message: 'Failed to send OTP.', error: error.message });
     }
 });
@@ -123,34 +84,23 @@ app.post('/api/send-otp', async (req, res) => {
 // 2. Verify OTP Endpoint
 app.post('/api/verify-otp', (req, res) => {
     const { email, otp } = req.body;
-
-    if (!email || !otp) {
-        return res.status(400).json({ success: false, message: 'Email and OTP are required' });
-    }
-
     const data = otpStore.get(email);
 
-    if (!data) {
-        return res.json({ success: false, message: 'No OTP requested for this email' });
-    }
-
-    // Check expiration (5 minutes = 300000 ms)
+    if (!data) return res.json({ success: false, message: 'No OTP requested' });
     if (Date.now() - data.timestamp > 300000) {
         otpStore.delete(email);
-        return res.json({ success: false, message: 'OTP has expired' });
+        return res.json({ success: false, message: 'OTP expired' });
     }
 
     if (data.otp === otp) {
-        otpStore.delete(email); // Invalidate OTP after use
-        res.json({ success: true, message: 'OTP verified successfully' });
+        otpStore.delete(email);
+        res.json({ success: true, message: 'OTP verified' });
     } else {
         res.json({ success: false, message: 'Invalid OTP' });
     }
 });
 
-// Start Server
 app.listen(PORT, () => {
     console.log(`--- Server Started ---`);
     console.log(`Port: ${PORT}`);
-    console.log(`Time: ${new Date().toISOString()}`);
 });
