@@ -15,8 +15,8 @@ const Auth = {
 
     register: (details) => {
         const newUser = {
-            id: details.rollNo,
-            role: 'student',
+            id: details.rollNo || details.email,
+            role: details.role || 'student',
             ...details
         };
         return DB.registerUser(newUser);
@@ -40,7 +40,8 @@ const Auth = {
                 // New User -> Show Profile Completion Modal
                 window.pendingGoogleUser = { email, name, picture };
                 document.getElementById('profile-completion-modal').classList.remove('hidden');
-                populateBranches(); // Ensure branches are loaded for the modal
+                if (window.populateBranches) populateBranches();
+                if (window.toggleRoleFields) toggleRoleFields('student', 'modal');
             }
         } catch (error) {
             console.error('Auth Error:', error);
@@ -85,8 +86,8 @@ const Auth = {
         if (!window.pendingGoogleUser) return { success: false, message: 'No session found' };
 
         const newUser = {
-            id: details.rollNo,
-            role: 'student',
+            id: details.rollNo || window.pendingGoogleUser.email,
+            role: details.role || 'student',
             name: window.pendingGoogleUser.name,
             email: window.pendingGoogleUser.email,
             picture: window.pendingGoogleUser.picture,
