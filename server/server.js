@@ -14,15 +14,32 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Health & Diagnostic Check
-app.get('/api/ai/health', (req, res) => {
-    res.json({ 
-        success: true, 
-        message: 'AI Proxy is active.',
-        env: {
-            hasKey: !!process.env.GEMINI_API_KEY,
-            nodeVersion: process.version
+app.get('/api/ai/health', async (req, res) => {
+    try {
+        const API_KEY = process.env.GEMINI_API_KEY;
+        if (!API_KEY) {
+            return res.json({ success: false, message: 'Missing API Key in Environment' });
         }
-    });
+
+        // Fetch list of models from Google to see what's actually available
+        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
+        const response = await fetch(listUrl);
+        const data = await response.json();
+
+        res.json({ 
+            success: true, 
+            message: 'AI Proxy is active.',
+            diagnostics: {
+                hasKey: true,
+                nodeVersion: process.version,
+                googleResponse: response.ok ? 'Authorized' : 'Unauthorized',
+                availableModels: data.models ? data.models.map(m => m.name.replace('models/', '')) : 'Unable to list models',
+                rawError: response.ok ? null : data
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // AI Chat Proxy
