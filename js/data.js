@@ -24,8 +24,24 @@ const BRANCHES = [
 ];
 
 const SECTIONS = {
-    'CSE': ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-    'default': ['A1', 'A2', 'B1', 'B2']
+    'BT': [1],
+    'CHE': [1],
+    'CE': [1, 2],
+    'CSE': [1, 2, 3, 4, 5, 6],
+    'CSDA': [1],
+    'ECE': [1, 2, 3],
+    'EE': [1, 2, 3, 4, 5],
+    'EVDT': [1],
+    'ENE': [1],
+    'EP': [1, 2],
+    'IT': [1, 2],
+    'ITCY': [1],
+    'MCE': [1, 2, 3],
+    'ME': [1, 2, 3, 4],
+    'MAM': [1],
+    'PIE': [1],
+    'SE': [1, 2, 3],
+    'default': [1, 2]
 };
 
 const TIME_SLOTS = [
