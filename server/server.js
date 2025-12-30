@@ -60,11 +60,11 @@ User Question: ${message}
 
 Instructions: Answer based ONLY on the provided JSON. Be concise and professional. Use standard Indian English.`;
 
-        // Try the most reliable endpoint: v1beta with gemini-1.5-flash
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Try the most reliable endpoint: v1beta with gemini-2.0-flash
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
         
         console.log(`--- AI Request ---`);
-        console.log(`Endpoint: v1beta/gemini-1.5-flash`);
+        console.log(`Endpoint: v1beta/gemini-2.0-flash`);
 
         const response = await fetch(apiUrl, {
             method: 'POST',
