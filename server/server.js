@@ -32,8 +32,11 @@ app.use(bodyParser.json());
 const otpStore = new Map();
 
 // Email Transporter (Gmail)
+// Use Port 465 (SSL) to avoid timeouts on Render
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, 
     auth: {
         user: config.EMAIL_USER,
         pass: config.EMAIL_PASS
