@@ -19,9 +19,9 @@
       <div class="logo" style="margin-bottom: 2rem;">DTU Scheduler</div>
 
       <!-- Auth Toggle -->
-      <div class="auth-toggle" style="display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 25px; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);">
-         <button onclick="switchAuthState('login')" id="toggle-login-btn" class="active" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: var(--primary); color: white; cursor: pointer; transition: 0.3s; font-weight: 500;">Login</button>
-         <button onclick="switchAuthState('register')" id="toggle-register-btn" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.3s; font-weight: 500;">Sign Up</button>
+      <div class="auth-toggle">
+         <button onclick="switchAuthState('login')" id="toggle-login-btn" class="active">Login</button>
+         <button onclick="switchAuthState('register')" id="toggle-register-btn">Sign Up</button>
       </div>
 
       <!-- Login View -->
@@ -39,10 +39,10 @@
         </div>
         <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left" style="display: flex; justify-content: center;"></div>
 
-        <div style="margin: 1.5rem 0; display: flex; align-items: center; color: var(--text-muted); font-size: 0.8rem;">
-            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
-            <div style="padding: 0 10px;">OR</div>
-            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
+        <div style="margin: 2rem 0; display: flex; align-items: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;">
+            <div style="flex:1; height:1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1));"></div>
+            <div style="padding: 0 15px;">OR</div>
+            <div style="flex:1; height:1px; background: linear-gradient(to left, transparent, rgba(255,255,255,0.1));"></div>
         </div>
 
         <form onsubmit="handleManualLogin(event)">
@@ -72,7 +72,7 @@
         </div>
 
         <form onsubmit="handleManualRegister(event)" style="text-align: left;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="grid-responsive">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" name="name" required />
@@ -90,7 +90,7 @@
                 <label>Password</label>
                 <input type="password" name="password" required />
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="grid-responsive">
                 <div class="form-group">
                     <label>Branch</label>
                     <select name="branch" id="reg-branch-manual" onchange="loadSectionsManual()" required>
@@ -185,26 +185,10 @@
           document.getElementById('login-view').classList.toggle('hidden', !isLogin);
           document.getElementById('register-view').classList.toggle('hidden', isLogin);
           
-          // Toggle Buttons
-          const loginBtn = document.getElementById('toggle-login-btn');
-          const registerBtn = document.getElementById('toggle-register-btn');
+          document.getElementById('toggle-login-btn').classList.toggle('active', isLogin);
+          document.getElementById('toggle-register-btn').classList.toggle('active', !isLogin);
           
-          if(isLogin) {
-              loginBtn.classList.add('active');
-              loginBtn.style.background = 'var(--primary)';
-              loginBtn.style.color = 'white';
-              registerBtn.classList.remove('active');
-              registerBtn.style.background = 'transparent';
-              registerBtn.style.color = 'var(--text-muted)';
-          } else {
-              registerBtn.classList.add('active');
-              registerBtn.style.background = 'var(--primary)';
-              registerBtn.style.color = 'white';
-              loginBtn.classList.remove('active');
-              loginBtn.style.background = 'transparent';
-              loginBtn.style.color = 'var(--text-muted)';
-              populateBranchesManual();
-          }
+          if(!isLogin) populateBranchesManual();
       }
 
       // Global callback for Google Sign-In
