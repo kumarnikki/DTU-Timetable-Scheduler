@@ -60,11 +60,11 @@ User Question: ${message}
 
 Instructions: Answer based ONLY on the provided JSON. Be concise and professional. Use standard Indian English.`;
 
-        // Try the most reliable endpoint: v1beta with gemini-2.0-flash
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+        // Use gemini-flash-latest (alias for 1.5 Flash) from your available models list
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
         
         console.log(`--- AI Request ---`);
-        console.log(`Endpoint: v1beta/gemini-2.0-flash`);
+        console.log(`Endpoint: v1beta/gemini-flash-latest`);
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -86,9 +86,15 @@ Instructions: Answer based ONLY on the provided JSON. Be concise and professiona
             // Handle specific Google API errors
             console.error("Google API Error:", JSON.stringify(data));
             const detail = data.error?.message || 'Unknown API Error';
+            let userMessage = `Google API Error (${response.status}): ${detail}`;
+            
+            if (response.status === 429) {
+                userMessage += " | TIP: You have hit the Free Tier limit or quota for this model. Try again in a minute, or check AI Studio to see if you can enable the Free Tier for this project.";
+            }
+            
             return res.status(response.status).json({ 
                 success: false, 
-                message: `Google API Error (${response.status}): ${detail}` 
+                message: userMessage 
             });
         }
 
