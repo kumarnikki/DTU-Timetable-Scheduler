@@ -2,10 +2,26 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const config = require('./config');
+
+// Load Config (Support both Local config.js and Production Env Vars)
+let config = {
+    EMAIL_USER: process.env.EMAIL_USER,
+    EMAIL_PASS: process.env.EMAIL_PASS
+};
+
+try {
+    const localConfig = require('./config');
+    // If local config exists, use it as fallback or override
+    config.EMAIL_USER = config.EMAIL_USER || localConfig.EMAIL_USER;
+    config.EMAIL_PASS = config.EMAIL_PASS || localConfig.EMAIL_PASS;
+} catch (e) {
+    // config.js not found (Expected in Production/Render)
+    console.log('Using Environment Variables for Configuration');
+}
 
 const app = express();
-const PORT = 3000;
+// Render requires binding to process.env.PORT
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
