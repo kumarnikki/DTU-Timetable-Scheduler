@@ -90,9 +90,7 @@ const AIBot = {
             );
 
             // 2. Call Backend Proxy
-            const API_BASE = window.location.hostname === 'localhost' || window.location.protocol === 'file:' 
-                ? 'http://localhost:3000' 
-                : '';
+            const API_BASE = 'https://dtu-timetable-schedular-backend.onrender.com';
 
             const response = await fetch(`${API_BASE}/api/ai/chat`, {
                 method: 'POST',
@@ -119,7 +117,12 @@ const AIBot = {
         } catch (error) {
             console.error("Chat Error:", error);
             if(document.getElementById('bot-loading')) document.getElementById('bot-loading').remove();
-            AIBot.addMessage("Opps! Something went wrong on my end.", 'bot');
+            
+            if (error.message.includes('Failed to fetch')) {
+                AIBot.addMessage("Connection Refused! Please make sure your server is running (run_backend.bat).", 'bot');
+            } else {
+                AIBot.addMessage("Opps! Something went wrong on my end. Check the console for details.", 'bot');
+            }
         }
     }
 };

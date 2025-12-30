@@ -1,5 +1,5 @@
 @echo off
 echo Starting DTU Scheduler Backend...
 echo.
-npm start --script-shell=cmd
+node server/server.js
 pause
