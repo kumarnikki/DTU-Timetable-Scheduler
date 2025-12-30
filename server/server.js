@@ -32,7 +32,7 @@ app.post('/api/ai/chat', async (req, res) => {
 
         // Initialize Gemini SDK
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", apiVersion: 'v1' });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `You are "DTU Academic Bot", a helpful assistant for Delhi Technological University students.
 You have access to the following timetable data for the user:
