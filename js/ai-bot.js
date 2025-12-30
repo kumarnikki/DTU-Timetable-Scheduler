@@ -97,6 +97,7 @@ const AIBot = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     message: message,
+                    history: AIBot.history, // Send full conversational history
                     context: {
                         userInfo: { name: user.name, role: user.role, branch: user.branch, section: user.section },
                         currentTime: new Date().toLocaleString(),

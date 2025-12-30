@@ -45,56 +45,132 @@ const SECTIONS = {
 };
 
 const UNIVERSITY_INFO = {
-    name: "Delhi Technological University (DTU)",
-    formerly: "Delhi College of Engineering (DCE)",
-    established: 1941,
-    campus_size: "164 acres",
-    address: "Shahbad Daulatpur, Main Bawana Road, Delhi, 110042",
-    contact: {
-        general: "011-27871018",
-        hostel: "Check specific hostel office",
-        security: "Available 24/7 at main gate",
-        admission: "011-27871022"
+    identity: {
+        name: "Delhi Technological University (DTU)",
+        formerly: "Delhi College of Engineering (DCE)",
+        established: 1941,
+        status: "State University",
+        campus_size: "164 acres (Rohini Campus)",
+        motto: "Knowledge is the ultimate truth",
+        address: "Shahbad Daulatpur, Main Bawana Road, Delhi, 110042",
+        contact: {
+            general: "011-27871018",
+            hostel: "Check specific hostel office for warden details",
+            security: "Available 24/7 (Main Gate & Back Gate)",
+            admission: "011-27871022",
+            medical: "DTU Health Centre (Open 24/7 for emergencies)",
+            library: "011-27871018 Ext 1111"
+        },
+        metro: {
+            closest: "Samaypur Badli (Yellow Line) - 2.5km",
+            alternative: "Rithala (Red Line) - 4.5km",
+            tip: "Rickshaws from Samaypur Badli cost ₹10 (walk slightly out from gate)."
+        }
     },
-    navigation: {
-        main_gate: "https://www.google.com/maps/search/DTU+Entrance+Gate",
-        library: "https://www.google.com/maps/place/DTU+Library",
-        sports_complex: "https://www.google.com/maps/search/DTU+Sports+Complex",
-        hostels: "https://www.google.com/maps/search/DTU+Hostels",
-        vice_chancellor_office: "https://www.google.com/maps/search/DTU+VC+Office"
-    },
-    landmarks: [
-        { name: "SPS (Smart Lecture Hall Complex)", description: "Contains SPS-1 to SPS-13. Major venue for lectures.", map: "https://www.google.com/maps/search/DTU+SPS" },
-        { name: "Pragyan Bhawan (PB)", description: "Academic hub (CSE, IT, Computer Center).", map: "https://www.google.com/maps/search/DTU+Pragyan+Bhawan" },
-        { name: "Central Library", description: "3-story building with digital resources.", map: "https://www.google.com/maps/place/DTU+Library" },
-        { name: "OAT (Open Air Theatre)", description: "Cultural fest venue.", map: "https://www.google.com/maps/search/DTU+OAT" },
-        { name: "Admin Block", description: "Academic & Admin offices.", map: "https://www.google.com/maps/search/DTU+Admin+Block" }
+    placements_2024: [
+        { branch: "Computer Engineering (COE)", avg_ctc: "17.21 LPA", max_ctc: "85.30 LPA" },
+        { branch: "Software Engineering (SE)", avg_ctc: "21.54 LPA", max_ctc: "64.00 LPA" },
+        { branch: "Information Technology (IT)", avg_ctc: "16.23 LPA", max_ctc: "51.00 LPA" },
+        { branch: "Electronics & Communication (ECE)", avg_ctc: "16.61 LPA", max_ctc: "85.30 LPA" },
+        { branch: "Mechanical Engineering (MCE)", avg_ctc: "18.90 LPA", max_ctc: "85.30 LPA" },
+        { branch: "Electrical Engineering (EE)", avg_ctc: "12.47 LPA", max_ctc: "51.00 LPA" },
+        { branch: "Civil Engineering (CE)", avg_ctc: "8.58 LPA", max_ctc: "19.20 LPA" },
+        { branch: "Mechanical (ME)", avg_ctc: "9.58 LPA", max_ctc: "26.00 LPA" }
     ],
-    student_hotspots: {
-        food: [
-            { name: "Raj Soin Hall/Cafe", specialty: "Chole Chawal, Cold Coffee", note: "Cheap and better than main canteen." },
-            { name: "Mic Mac", specialty: "Snacks, Maggi", note: "Iconic meeting spot." },
-            { name: "Bistro", specialty: "Treats/Snacks", note: "Good quality but slightly pricier." },
-            { name: "Mother Dairy", specialty: "Dairy, Maggi", note: "Opposite to Hostels." },
-            { name: "Nesii", specialty: "Coffee & Quick Bites", note: "Popular evening spot." }
+    hostels: {
+        boys: [
+            { id: "ABH", name: "Aryabhatta", capacity: 171, mess: "In-hostel", note: "Freshman hub." },
+            { id: "BCH", name: "Bhaskaracharya", capacity: 177, mess: "External (shared)", note: "Single/Double rooms." },
+            { id: "APJ", name: "Dr. APJ Abdul Kalam", capacity: 312, mess: "External", note: "Premium AC rooms (New)." },
+            { id: "HJB", name: "Homi Jahangir Bhabha", capacity: 163, mess: "In-hostel" },
+            { id: "CVR", name: "Sir C.V. Raman", capacity: 150, mess: "In-hostel" },
+            { id: "JCB", name: "Sir J.C. Bose", capacity: 140, mess: "In-hostel" },
+            { id: "VMH", name: "Varahamihira", capacity: 200, mess: "Shared" },
+            { id: "VVS", name: "Sir M. Visvesvaraya", capacity: 250, mess: "In-hostel" }
         ],
-        study: [
-            { name: "Building 324", note: "Good natural light & proximity to coffee." },
-            { name: "Building 421", note: "Large hall with coffee vending machine." },
-            { name: "Building 210", note: "Quiet cubicles for group work." }
+        girls: [
+            { id: "KCH", name: "Kalpana Chawla", capacity: 39, mess: "External" },
+            { id: "SNH", name: "Sister Nivedita", capacity: 85, mess: "In-hostel" },
+            { id: "VLB", name: "Virangana Lakshmibai", capacity: 669, mess: "External", note: "Massive AC Hostel (Newest)." }
         ]
     },
-    tips: [
-        "Rickshaw from Samaypur Badli Metro costs ₹10 (walk a bit from gate).",
-        "Maintain CGPA above 8.5 for best placement opportunities.",
-        "Join at least one technical and one cultural club.",
-        "Solve Previous Year Papers (PYQs) for Semester exams."
+    departments_and_labs: [
+        { 
+            dept: "Computer Science", 
+            block: "Pragyan Bhawan Floor 1", 
+            labs: ["Operating Systems Lab", "Database Lab", "Computer Vision Lab", "Cyber Security Center"]
+        },
+        { 
+            dept: "Applied Chemistry", 
+            block: "Science Block", 
+            labs: ["Polymer Synthesis", "Textile Technology", "Chemical Reaction Engg", "Instrumentation Lab"]
+        },
+        { 
+            dept: "Mechanical Engineering", 
+            block: "Workshop Area", 
+            labs: ["Bio Diesel Lab", "Robotics & FMS", "CNC Lab", "Heat Transfer Lab", "Sand Testing"]
+        },
+        { 
+            dept: "Biotechnology", 
+            block: "Biotech Block", 
+            labs: ["Molecular Biology", "Cosmetic Engineering", "Bioprocess Lab", "Enzyme Technology"]
+        },
+        { 
+            dept: "Applied Physics", 
+            block: "Science Block", 
+            labs: ["Thin Films", "Fiber Optic Sensor Lab", "Optical Characterization"]
+        }
+    ],
+    alumni: [
+        { name: "Vinod Dham", contribution: "Father of the Pentium Chip (Intel Inventor)" },
+        { name: "Vijay Shekhar Sharma", contribution: "Founder of Paytm" },
+        { name: "Sushant Singh Rajput", contribution: "Bollywood Actor (AIR-7 in Entrance)" },
+        { name: "Arvind Saxena", contribution: "Former Chairman of UPSC" },
+        { name: "Sanjay Gupta", contribution: "Country Manager, Google India" },
+        { name: "Manish Khera", contribution: "Founder & CEO, FINO Pay-tech" }
+    ],
+    societies: {
+        technical: [
+            { name: "IEEE DTU", note: "Core electronics and CS society." },
+            { name: "ASME DTU", note: "Mechanical engineering excellence." },
+            { name: "UAS DTU", note: "Worldwide champions in Unmanned Aerial Systems (Drones)." },
+            { name: "Defianz Racing", note: "Formula Student team." }
+        ],
+        cultural: [
+            { name: "Pratibimb", note: "The Dramatics/Theatre society." },
+            { name: "Madhurima", note: "The Music society (Classical & Western)." },
+            { name: "Vibe / DTU DanceSoc", note: "Western dance champions." },
+            { name: "Panache", note: "Fashion and design society." }
+        ],
+        literary: ["Sahitya", "Yuvaan Literary Team", "Cognitive Minds", "Toastmasters"]
+    },
+    events: {
+        cultural: { name: "Engifest", history: "Since 1974", scale: "100k+ attendees", stars: "Sunidhi Chauhan, Nucleya, Amit Trivedi" },
+        literary: { name: "Yuvaan", history: "Since 2017", scale: "North India's largest Lit-Fest", stars: "Durjoy Datta, Manisha Koirala" }
+    },
+    scholarships: [
+        "Merit-cum-Means (Tuition fee waiver based on income)",
+        "Post Matric (SC/ST/OBC students)",
+        "Narotam Sekhsaria (PG students)",
+        "Passi Family Scholarship",
+        "Suraaj & Prem Bhatia Scholarship"
+    ],
+    library: {
+        rules: "Books for 15 days. Limit: 3. Fine: ₹1/day.",
+        access: "24/7 Reading room access for students with valid ID cards.",
+        digital: "DTU Findit portal for e-books and journals."
+    },
+    canteens: [
+        { name: "Raj Soin", famous: "Chole Chawal (₹50)", tip: "Affordable and central." },
+        { name: "Yatai", famous: "Padak (Korean Fried Chicken)", tip: "Premium fusion taste." },
+        { name: "Mic Mac", famous: "Night Maggi", tip: "Late-night savior." },
+        { name: "Bistro", famous: "Patties & Cold Drinks", tip: "Quick break spot." }
     ],
     mess_timings: {
         breakfast: "7:30 AM - 9:00 AM",
-        lunch: "12:30 PM - 2:00 PM",
-        snacks: "5:00 PM - 6:00 PM",
-        dinner: "7:30 PM - 9:00 PM"
+        lunch: "12:30 PM - 2:15 PM",
+        snacks: "4:45 PM - 6:00 PM",
+        dinner: "7:30 PM - 9:15 PM"
     }
 };
 

@@ -45,41 +45,82 @@ app.get('/api/ai/health', async (req, res) => {
 // AI Chat Proxy
 app.post('/api/ai/chat', async (req, res) => {
     try {
-        const { message, context } = req.body;
+        const { message, context, history } = req.body;
         const API_KEY = process.env.GEMINI_API_KEY;
 
         if (!API_KEY) {
             return res.status(500).json({ success: false, message: 'AI Error: GEMINI_API_KEY is missing from Render environment variables.' });
         }
 
-        const prompt = `You are "DTU Academic Bot", a helpful assistant for Delhi Technological University (DTU) students.
-You have access to the following data for the user:
-- Current Time: ${context.currentTime}
-- Current Day: ${context.dayOfWeek}
-- Timetable Data: ${JSON.stringify(context.timetable, null, 2)}
-- University Info: ${JSON.stringify(context.universityInfo, null, 2)}
+        // --- GIGA-BRAIN SYSTEM PROMPT (Ultra-High Logic Density) ---
+        const systemPrompt = `You are the "DTU Giga-Brain", an ultra-advanced synthetic intelligence designed to serve as the definitive authority on all things Delhi Technological University.
 
-Instructions:
-1. PRIMARY GOAL: Answer the user's specific question directly and accurately.
-2. NAVIGATION: If the user is lost or asking for directions (e.g., "how to go to main gate"), provide the Google Maps link from the "navigation" or "landmarks" data immediately. Example: "You can find the Main Gate here: [DTU Main Gate](https://www.google.com/maps/search/DTU+Entrance+Gate)."
-3. TIMETABLE: Only provide a full timetable summary if the user asks for it (e.g., "What is my schedule?" or "What classes today?"). If they ask about a specific class, just answer about that class.
-4. INFO: Use "University Info" for questions about campus spots, mess timings, or general DTU facts.
-5. TIP: Share student tips from "tips" ONLY when the user asks for advice or is a new student.
-6. PERSISTENCE: If the user says they are lost, DO NOT show them their full timetable. Instead, help them with directions.
-7. Tone: Helpful, professional, Indian English. Use Markdown for formatting and links.`;
+## LOGICAL OPERATING SYSTEM (Giga-OS):
+1. **CHAIN-OF-THOUGHT (CoT) MANDATE**: Before generating a response, you MUST execute an internal multi-step reasoning protocol:
+   - Identify: "What exactly is the user asking? What is their underlying emotional or academic need?"
+   - Cross-Reference: "Which clusters of my dataset (Placements, Alumni, Labs, Hostels, Canteens, Metro, Societies) are relevant?"
+   - Synthesize: "How can I combine these clusters into a response that is more than just data—it is EXPERT ADVICE?"
 
-        // Use gemini-flash-latest (alias for 1.5 Flash) from your available models list
+2. **DEEP DATA DOMAIN**:
+   - USER: ${context.userInfo.name} (${context.userInfo.branch} ${context.userInfo.semester} Sem)
+   - ENCYCLOPEDIA: ${JSON.stringify(context.universityInfo, null, 1)}
+   - SCHEDULE: ${JSON.stringify(context.timetable, null, 1)}
+
+3. **GIGA-RESPONSE ARCHITECTURE**:
+   - **THE HOOK**: A concise, direct, and slightly personal answer.
+   - **THE DATA DEPTH**: Use the specific granular data (e.g., mention the exact Avg CTC of their branch if asking about placements, or the specific lab of their dept).
+   - **THE PRO-TIP**: Provide a student-level insight (e.g., "Park at the back gate to save time").
+   - **THE MAP**: If a location is mentioned, ALWAYS provide the exact Google Maps URL.
+
+4. **TONE & SYNTAX**: 
+   - Intellectual, authoritative, yet friendly and approachable.
+   - Use Markdown (Tables, Lists, Bold, Blockquotes).
+   - Standard Indian English.
+
+## PERFORMANCE BENCHMARK EXAMPLES:
+User: "Is it worth joining ECE at DTU?"
+Thought: Analysis of ECE placement stats (16.61 LPA avg) and alumni impact (Vinod Dham).
+Response: "Absolutely, ${context.userInfo.name}! ECE at DTU is legendary. Check this out:
+- **Placement Power**: In 2024, ECE had an **Average CTC of 16.61 LPA** and a **Max CTC of 85.30 LPA**.
+- **Alumni Legacy**: You'll be following in the footsteps of **Vinod Dham**, the 'Father of the Pentium Chip'.
+- **Labs**: You'll spend time in the *Optical Fiber Characterization* and *Advanced Electronics* labs in the Science Block.
+It's a high-workload but high-reward branch. Pro-tip: Focus on coding early alongside your core subjects to hit those top-tier tech offers!"
+
+User: "How's the food at Raj Soin?"
+Thought: Identify Raj Soin as the central hub.
+Response: "Raj Soin is the 'Heart of DTU' when it comes to food. 
+- **The Classic**: You have to try the **Chole Chawal (₹50)**. It's the most famous dish on campus. 
+- **The Drink**: Their **Cold Coffee** is a lifesaver during Rohini summers.
+- **Map**: [Navigate to Raj Soin](https://www.google.com/maps/search/DTU+Raj+Soin)
+Pro-tip: If it's too crowded, head over to **Udupi** for a calmer Vada-Sambar session!"
+
+MISSION: Deliver a response that proves you are a 'Super-Intelligence' deeply integrated into the DTU ecosystem.`;
+
+        // --- CONSTRUCT FULL CONVERSATION CONTENTS ---
+        // We inject the system instructions into a hidden context block at the start
+        const contents = [];
+        
+        // Add Chat History (from frontend)
+        if (history && history.length > 0) {
+            // Filter to last 10 exchanges for token efficiency if needed, but here we take all
+            contents.push(...history.slice(-10)); 
+        }
+
+        // Add Current Message with the MASSIVE System Context prepended (to ensure it's always top-of-mind)
+        const currentMessageText = `[SYSTEM CONTEXT: ${systemPrompt}]\n\nUSER MESSAGE: ${message}`;
+        contents.push({
+            role: "user",
+            parts: [{ text: currentMessageText }]
+        });
+
+        // --- CALL GEMINI ---
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
         
-        console.log(`--- AI Request ---`);
-        console.log(`Endpoint: v1beta/gemini-flash-latest`);
-
+        console.log(`--- [SUPER AI] Request ---`);
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
+            body: JSON.stringify({ contents })
         });
 
         const data = await response.json();
@@ -88,27 +129,19 @@ Instructions:
             if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
                 return res.json({ success: true, response: data.candidates[0].content.parts[0].text });
             }
-            console.error("Gemini Response Structure Weird:", JSON.stringify(data));
-            return res.status(500).json({ success: false, message: 'AI returned empty or weird response.' });
+            console.error("Super AI Response Struct Error:", JSON.stringify(data));
+            return res.status(500).json({ success: false, message: 'Super AI returned an unreadable response.' });
         } else {
-            // Handle specific Google API errors
             console.error("Google API Error:", JSON.stringify(data));
             const detail = data.error?.message || 'Unknown API Error';
-            let userMessage = `Google API Error (${response.status}): ${detail}`;
-            
-            if (response.status === 429) {
-                userMessage += " | TIP: You have hit the Free Tier limit or quota for this model. Try again in a minute, or check AI Studio to see if you can enable the Free Tier for this project.";
-            }
-            
-            return res.status(response.status).json({ 
-                success: false, 
-                message: userMessage 
-            });
+            let userMessage = `Super AI Error (${response.status}): ${detail}`;
+            if (response.status === 429) userMessage += " | TIP: Free Tier quota hit. Wait 60s.";
+            return res.status(response.status).json({ success: false, message: userMessage });
         }
 
     } catch (error) {
-        console.error("Server AI Error:", error);
-        res.status(500).json({ success: false, message: `Internal Server Error: ${error.message}` });
+        console.error("Super AI Server Error:", error);
+        res.status(500).json({ success: false, message: `Super Brain Error: ${error.message}` });
     }
 });
 
