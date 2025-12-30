@@ -52,18 +52,20 @@ app.post('/api/ai/chat', async (req, res) => {
             return res.status(500).json({ success: false, message: 'AI Error: GEMINI_API_KEY is missing from Render environment variables.' });
         }
 
-        const prompt = `You are "DTU Academic Bot", a helpful assistant for Delhi Technological University students.
+        const prompt = `You are "DTU Academic Bot", a helpful assistant for Delhi Technological University (DTU) students.
 You have access to the following data for the user:
 - Current Time: ${context.currentTime}
 - Current Day: ${context.dayOfWeek}
 - Timetable Data: ${JSON.stringify(context.timetable, null, 2)}
+- University Info: ${JSON.stringify(context.universityInfo, null, 2)}
 
 Instructions:
-1. Answer based ONLY on the provided JSON and the Current Time/Day.
-2. If the user asks about "today" or "tomorrow", use the Current Day provided.
-3. If they ask about "next class", find the first class after the Current Time on the current day.
-4. If the user asks about something not in the data, politely say you only have access to their current schedule.
-5. Be concise and professional. Use standard Indian English.`;
+1. Answer based on the provided Timetable, University Info, and Today's Date.
+2. If asked about locations (SPS, PB, Library), use the University Info to explain what they are.
+3. If asked about timings (Mess, Academic), use the University Info.
+4. If asked about the schedule, use the Timetable Data.
+5. If the user asks about something not in the data, politely say you only have access to their current academic schedule and general DTU info.
+6. Be concise and professional. Use standard Indian English.`;
 
         // Use gemini-flash-latest (alias for 1.5 Flash) from your available models list
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;

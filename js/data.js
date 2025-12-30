@@ -44,6 +44,37 @@ const SECTIONS = {
     'default': [1, 2]
 };
 
+const UNIVERSITY_INFO = {
+    name: "Delhi Technological University (DTU)",
+    formerly: "Delhi College of Engineering (DCE)",
+    established: 1941,
+    address: "Shahbad Daulatpur, Main Bawana Road, Delhi, 110042",
+    contact: {
+        general: "011-27871018",
+        hostel: "Check specific hostel office",
+        security: "Available 24/7 at main gate"
+    },
+    landmarks: [
+        { name: "SPS (Smart Lecture Hall Complex)", description: "Contains SPS-1 to SPS-13. Major venue for lectures and orientation." },
+        { name: "Pragyan Bhawan (PB)", description: "Academic hub containing the Computer Center, IT, CSE, and core departments." },
+        { name: "Central Library", description: "Three-story building with over 2 lakh books and digital resources." },
+        { name: "OAT (Open Air Theatre)", description: "Venue for cultural fests (Engifest) and major events." },
+        { name: "Admin Block", description: "Main administrative office, Registar office, and Academic section." },
+        { name: "Sports Complex", description: "Facilities for cricket, football, running track, and indoor games." }
+    ],
+    mess_timings: {
+        breakfast: "7:30 AM - 9:00 AM",
+        lunch: "12:30 PM - 2:00 PM",
+        snacks: "5:00 PM - 6:00 PM",
+        dinner: "7:30 PM - 9:00 PM"
+    },
+    resources: [
+        { name: "Official Website", url: "www.dtu.ac.in" },
+        { name: "Exam Portal", url: "exam.dtu.ac.in" },
+        { name: "LMS", url: "lms.dtu.ac.in" }
+    ]
+};
+
 const TIME_SLOTS = [
     '8-9', '9-10', '10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5', '5-6'
 ];
