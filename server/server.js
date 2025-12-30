@@ -13,9 +13,16 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Minimal Health Check
-app.get('/api/health', (req, res) => {
-    res.json({ success: true, message: 'Server is running - Auth is now handled via Google on the frontend.' });
+// Health & Diagnostic Check
+app.get('/api/ai/health', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'AI Proxy is active.',
+        env: {
+            hasKey: !!process.env.GEMINI_API_KEY,
+            nodeVersion: process.version
+        }
+    });
 });
 
 // AI Chat Proxy
@@ -25,7 +32,7 @@ app.post('/api/ai/chat', async (req, res) => {
         const API_KEY = process.env.GEMINI_API_KEY;
 
         if (!API_KEY) {
-            return res.status(500).json({ success: false, message: 'AI Service Not Configured. Please add GEMINI_API_KEY to Render environment variables.' });
+            return res.status(500).json({ success: false, message: 'AI Error: GEMINI_API_KEY is missing from Render environment variables.' });
         }
 
         const prompt = `You are "DTU Academic Bot", a helpful assistant for Delhi Technological University students.
@@ -34,52 +41,43 @@ ${JSON.stringify(context, null, 2)}
 
 User Question: ${message}
 
-Instructions:
-1. Answer based ONLY on the provided JSON data.
-2. If the user asks about something not in the data (like other branches or non-academic info), politely say you only have access to their current schedule.
-3. Be concise and professional.
-4. Use standard Indian English.`;
+Instructions: Answer based ONLY on the provided JSON. Be concise and professional. Use standard Indian English.`;
 
-        // Direct REST API call to v1beta endpoint (v1 doesn't support generative models yet)
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
+        // Try the most reliable endpoint: v1beta with gemini-1.5-flash
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
+        console.log(`--- AI Request ---`);
+        console.log(`Endpoint: v1beta/gemini-1.5-flash`);
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
+                contents: [{ parts: [{ text: prompt }] }]
             })
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Gemini API HTTP Error:", response.status, errorText);
-            return res.status(500).json({ 
+        const data = await response.json();
+
+        if (response.ok) {
+            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                return res.json({ success: true, response: data.candidates[0].content.parts[0].text });
+            }
+            console.error("Gemini Response Structure Weird:", JSON.stringify(data));
+            return res.status(500).json({ success: false, message: 'AI returned empty or weird response.' });
+        } else {
+            // Handle specific Google API errors
+            console.error("Google API Error:", JSON.stringify(data));
+            const detail = data.error?.message || 'Unknown API Error';
+            return res.status(response.status).json({ 
                 success: false, 
-                message: `Gemini API Error (${response.status}): ${errorText}` 
+                message: `Google API Error (${response.status}): ${detail}` 
             });
         }
 
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            res.json({ success: true, response: aiResponse });
-        } else {
-            console.error("Unexpected Gemini Response:", JSON.stringify(data, null, 2));
-            res.status(500).json({ 
-                success: false, 
-                message: 'AI returned unexpected response format.' 
-            });
-        }
     } catch (error) {
-        console.error("AI Proxy Error:", error);
-        res.status(500).json({ 
-            success: false, 
-            message: `Server Error: ${error.message}` 
-        });
+        console.error("Server AI Error:", error);
+        res.status(500).json({ success: false, message: `Internal Server Error: ${error.message}` });
     }
 });
 
