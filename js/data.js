@@ -56,7 +56,7 @@ const TIME_SLOTS = [
 const TIMETABLE_SKELETON = {
     'CSE': {
         '2': { // 2nd Semester
-            'A1': { // SEC-1 implied as A1
+            '1': { // Section 1
                 'Monday': {
                     '9-10': { code: 'CS104', subject: 'Data Structures (L)', venue: 'PB-GF4', professor: 'Dr. Vineet Kumar' },
                     '10-11': { code: 'AM102', subject: 'Mathematics-II (L)', venue: 'PB-GF4', professor: 'Math Faculty' },
@@ -89,7 +89,7 @@ const TIMETABLE_SKELETON = {
     },
     'EE': {
         '2': {
-             'A1': {
+             '1': {
                  'Monday': {
                      '12-1': { code: 'EE104', subject: 'Circuit Theory (Lab)', venue: 'PB-GF6', professor: 'Faculty' },
                      '2-3': { code: 'AP102', subject: 'Physics (L)', venue: 'PB-GF6', professor: 'Dr. Neha' },
@@ -104,8 +104,8 @@ const TIMETABLE_SKELETON = {
 const MOCK_DB = {
     users: [
         { id: 'admin', role: 'admin', name: 'Admin', email: 'admin@dtu.ac.in', password: 'admin' },
-        { id: 'demo123', role: 'student', name: 'Demo Student', email: 'student@dtu.ac.in', password: 'pass', branch: 'CSE', section: 'A1', semester: '2' },
-        { id: '2K25/CSE/01', role: 'student', name: 'John Doe', email: 'john@dtu.ac.in', password: 'pass', branch: 'CSE', section: 'A1', semester: '2' },
+        { id: 'demo123', role: 'student', name: 'Demo Student', email: 'student@dtu.ac.in', password: 'pass', branch: 'CSE', section: '1', semester: '2' },
+        { id: '2K25/CSE/01', role: 'student', name: 'John Doe', email: 'john@dtu.ac.in', password: 'pass', branch: 'CSE', section: '1', semester: '2' },
         { id: 'W001', role: 'warden_hostel', name: 'Demo Warden', email: 'warden@dtu.ac.in', password: 'pass', hostel: 'Aryabhatta' },
         { id: 'P001', role: 'professor', name: 'Dr. Vineet Kumar', email: 'prof@dtu.ac.in', password: 'pass', dept: 'CSE' }
     ],
