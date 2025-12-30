@@ -111,7 +111,7 @@ label {
 input,
 select,
 button {
-  width: 100%;
+  /* width: 100%; */
   padding: 0.85rem 1.15rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -193,6 +193,14 @@ button.btn-primary:active {
   .grid-responsive {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+.header-date {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: -0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 /* Dashboard Layout */
@@ -366,7 +374,7 @@ header {
 
   .menu-toggle {
     display: block !important;
-    /* position: absolute !important; */
+    position: absolute !important;
     left: 0.75rem !important;
     top: 1rem !important;
     background: rgba(255, 255, 255, 0.1) !important;

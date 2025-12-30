@@ -38,6 +38,7 @@
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
                 <h1 id="page-title">Today's Schedule</h1>
+                <div id="current-date" class="header-date"></div>
                 <select id="day-filter" onchange="renderTimetable()">
                     <option value="Monday">Monday</option>
                     <option value="Tuesday">Tuesday</option>
@@ -102,6 +103,14 @@
             document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
         
+        // Display Date
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-IN', options);
+        }
+        updateDate();
+
         // Display User Info
         document.getElementById('user-info').innerHTML = `
             <strong>${user.name}</strong><br>
