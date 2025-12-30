@@ -64,12 +64,21 @@ const Auth = {
 
     // Save user to session and redirect
     sessionLogin: (user) => {
+        console.log("Logging in user:", user.email, "Role:", user.role);
         sessionStorage.setItem('currentUser', JSON.stringify(user));
         
+        // Determine path prefix (are we in a subfolder or root?)
+        const isSubfolder = window.location.pathname.includes('/student/') || 
+                           window.location.pathname.includes('/professor/') || 
+                           window.location.pathname.includes('/warden/');
+        
+        const prefix = isSubfolder ? '../' : '';
+
         // Redirect based on role
-        if (user.role === 'student') window.location.href = "student/dashboard.html";
-        else if (user.role === 'professor') window.location.href = "professor/dashboard.html";
-        else window.location.href = "warden/dashboard.html";
+        if (user.role === 'student') window.location.href = prefix + "student/dashboard.html";
+        else if (user.role === 'professor') window.location.href = prefix + "professor/dashboard.html";
+        else if (user.role && user.role.startsWith('warden')) window.location.href = prefix + "warden/dashboard.html";
+        else alert("Unknown User Role: " + user.role);
     },
 
     registerGoogleUser: (details) => {
@@ -93,7 +102,10 @@ const Auth = {
 
     logout: () => {
         sessionStorage.removeItem('currentUser');
-        window.location.href = '../index.html';
+        const isSubfolder = window.location.pathname.includes('/student/') || 
+                           window.location.pathname.includes('/professor/') || 
+                           window.location.pathname.includes('/warden/');
+        window.location.href = (isSubfolder ? '../' : '') + 'index.html';
     },
 
     getCurrentUser: () => {
@@ -103,10 +115,10 @@ const Auth = {
     checkAuth: () => {
         const user = sessionStorage.getItem('currentUser');
         if (!user) {
-           const pathPrefix = window.location.pathname.includes('/student/') || 
-                             window.location.pathname.includes('/professor/') || 
-                             window.location.pathname.includes('/warden/') ? '../' : '';
-           window.location.href = pathPrefix + 'index.html';
+           const isSubfolder = window.location.pathname.includes('/student/') || 
+                              window.location.pathname.includes('/professor/') || 
+                              window.location.pathname.includes('/warden/');
+           window.location.href = (isSubfolder ? '../' : '') + 'index.html';
            return null;
         }
         return JSON.parse(user);
