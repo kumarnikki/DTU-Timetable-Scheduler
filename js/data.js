@@ -48,31 +48,54 @@ const UNIVERSITY_INFO = {
     name: "Delhi Technological University (DTU)",
     formerly: "Delhi College of Engineering (DCE)",
     established: 1941,
+    campus_size: "164 acres",
     address: "Shahbad Daulatpur, Main Bawana Road, Delhi, 110042",
     contact: {
         general: "011-27871018",
         hostel: "Check specific hostel office",
-        security: "Available 24/7 at main gate"
+        security: "Available 24/7 at main gate",
+        admission: "011-27871022"
+    },
+    navigation: {
+        main_gate: "https://www.google.com/maps/search/DTU+Entrance+Gate",
+        library: "https://www.google.com/maps/place/DTU+Library",
+        sports_complex: "https://www.google.com/maps/search/DTU+Sports+Complex",
+        hostels: "https://www.google.com/maps/search/DTU+Hostels",
+        vice_chancellor_office: "https://www.google.com/maps/search/DTU+VC+Office"
     },
     landmarks: [
-        { name: "SPS (Smart Lecture Hall Complex)", description: "Contains SPS-1 to SPS-13. Major venue for lectures and orientation." },
-        { name: "Pragyan Bhawan (PB)", description: "Academic hub containing the Computer Center, IT, CSE, and core departments." },
-        { name: "Central Library", description: "Three-story building with over 2 lakh books and digital resources." },
-        { name: "OAT (Open Air Theatre)", description: "Venue for cultural fests (Engifest) and major events." },
-        { name: "Admin Block", description: "Main administrative office, Registar office, and Academic section." },
-        { name: "Sports Complex", description: "Facilities for cricket, football, running track, and indoor games." }
+        { name: "SPS (Smart Lecture Hall Complex)", description: "Contains SPS-1 to SPS-13. Major venue for lectures.", map: "https://www.google.com/maps/search/DTU+SPS" },
+        { name: "Pragyan Bhawan (PB)", description: "Academic hub (CSE, IT, Computer Center).", map: "https://www.google.com/maps/search/DTU+Pragyan+Bhawan" },
+        { name: "Central Library", description: "3-story building with digital resources.", map: "https://www.google.com/maps/place/DTU+Library" },
+        { name: "OAT (Open Air Theatre)", description: "Cultural fest venue.", map: "https://www.google.com/maps/search/DTU+OAT" },
+        { name: "Admin Block", description: "Academic & Admin offices.", map: "https://www.google.com/maps/search/DTU+Admin+Block" }
+    ],
+    student_hotspots: {
+        food: [
+            { name: "Raj Soin Hall/Cafe", specialty: "Chole Chawal, Cold Coffee", note: "Cheap and better than main canteen." },
+            { name: "Mic Mac", specialty: "Snacks, Maggi", note: "Iconic meeting spot." },
+            { name: "Bistro", specialty: "Treats/Snacks", note: "Good quality but slightly pricier." },
+            { name: "Mother Dairy", specialty: "Dairy, Maggi", note: "Opposite to Hostels." },
+            { name: "Nesii", specialty: "Coffee & Quick Bites", note: "Popular evening spot." }
+        ],
+        study: [
+            { name: "Building 324", note: "Good natural light & proximity to coffee." },
+            { name: "Building 421", note: "Large hall with coffee vending machine." },
+            { name: "Building 210", note: "Quiet cubicles for group work." }
+        ]
+    },
+    tips: [
+        "Rickshaw from Samaypur Badli Metro costs ₹10 (walk a bit from gate).",
+        "Maintain CGPA above 8.5 for best placement opportunities.",
+        "Join at least one technical and one cultural club.",
+        "Solve Previous Year Papers (PYQs) for Semester exams."
     ],
     mess_timings: {
         breakfast: "7:30 AM - 9:00 AM",
         lunch: "12:30 PM - 2:00 PM",
         snacks: "5:00 PM - 6:00 PM",
         dinner: "7:30 PM - 9:00 PM"
-    },
-    resources: [
-        { name: "Official Website", url: "www.dtu.ac.in" },
-        { name: "Exam Portal", url: "exam.dtu.ac.in" },
-        { name: "LMS", url: "lms.dtu.ac.in" }
-    ]
+    }
 };
 
 const TIME_SLOTS = [

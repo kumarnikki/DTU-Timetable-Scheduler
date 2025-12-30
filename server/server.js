@@ -61,11 +61,11 @@ You have access to the following data for the user:
 
 Instructions:
 1. Answer based on the provided Timetable, University Info, and Today's Date.
-2. If asked about locations (SPS, PB, Library), use the University Info to explain what they are.
-3. If asked about timings (Mess, Academic), use the University Info.
-4. If asked about the schedule, use the Timetable Data.
-5. If the user asks about something not in the data, politely say you only have access to their current academic schedule and general DTU info.
-6. Be concise and professional. Use standard Indian English.`;
+2. IMPORTANT: If a student says they are lost or needs directions (e.g., "how to go to main gate"), provide the appropriate Google Maps link from the "navigation" or "landmarks" data.
+3. If asked about food/canteens, recommend spots from "student_hotspots" like Raj Soin or Mic Mac.
+4. If a new student asks for advice, share the "tips" from the context (e.g., about rickshaws or studies).
+5. If asked about the schedule, use the Timetable Data.
+6. Use standard Indian English, be concise, and always be helpful. Format links as [Link Text](URL).`;
 
         // Use gemini-flash-latest (alias for 1.5 Flash) from your available models list
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
