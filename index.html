@@ -12,89 +12,55 @@
     <link rel="icon" type="image/svg+xml" href="timetable.svg" />
   </head>
   <body>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <div class="glass auth-container" style="margin-top: 5vh">
       <div class="logo">DTU Scheduler</div>
 
-      <!-- Navigation for Roles -->
-      <div
-        style="
-          display: flex;
-          gap: 10px;
-          justify-content: center;
-          margin-bottom: 20px;
-        "
-      >
-        <button
-          onclick="switchRole('student')"
-          class="role-btn"
-          id="btn-student"
-        >
-          Student
-        </button>
-        <button
-          onclick="switchRole('professor')"
-          class="role-btn"
-          id="btn-professor"
-        >
-          Professor
-        </button>
-        <button onclick="switchRole('warden')" class="role-btn" id="btn-warden">
-          Warden
-        </button>
-      </div>
+      <!-- Main Login Section -->
+      <div id="auth-main" class="auth-form" style="text-align: center; padding: 2rem 0;">
+        <h2 style="margin-bottom: 0.5rem;">Welcome back!</h2>
+        <p style="color:var(--text-muted); margin-bottom: 2rem;">Sign in with your Google account to continue.</p>
+        
+        <!-- Google Sign-In Button Container -->
+        <div id="g_id_onload"
+             data-client_id="172073707110-obe0voq806ffr2n2jthgl6tnclbsde8g.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleGoogleSignIn"
+             data-auto_prompt="false">
+        </div>
 
-      <!-- Student Login -->
-      <div id="student-login" class="auth-form">
-        <h2>Student Login</h2>
-        <form onsubmit="handleLogin(event, 'student')">
-          <div class="form-group">
-            <label>Email ID</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="student@dtu.ac.in"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••"
-              required
-            />
-            <div style="text-align: right; margin-top: 0.5rem;">
-                <a onclick="openForgotModal()" style="color:var(--secondary); font-size:0.8rem; cursor:pointer;">Forgot Password?</a>
-            </div>
-          </div>
-          <button type="submit" class="btn-primary">Login</button>
-          <a onclick="toggleRegister()" class="toggle-link"
-            >New Student? Register here</a
-          >
-        </form>
-      </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="pill"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left"
+             style="display: flex; justify-content: center;">
+        </div>
 
-      <!-- Student Registration -->
-      <div id="student-register" class="auth-form hidden">
-        <h2>Student Registration</h2>
-        <form onsubmit="initiateRegistration(event)">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="name" required />
-          </div>
-          <div class="form-group">
-            <label>Roll No</label>
-            <input type="text" name="rollNo" required />
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" required />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" required />
-          </div>
+        <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+            <p style="color:var(--text-muted); font-size: 0.85rem;">
+                By signing in, you agree to the usage of your DTU email for timetable synchronization.
+            </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Completion Modal (For New Google Users) -->
+    <div id="profile-completion-modal" class="modal-overlay hidden">
+        <div class="modal glass">
+            <h2 style="margin-bottom:0.5rem;">Almost Done!</h2>
+            <p style="color:var(--text-muted); margin-bottom:1.5rem;">Please complete your profile to see your timetable.</p>
+            
+            <form onsubmit="handleProfileCompletion(event)">
+                <div class="form-group">
+                    <label>Roll No</label>
+                    <input type="text" name="rollNo" placeholder="2K24/CSE/01" required />
+                </div>
                 <div class="form-group">
                     <label>Semester</label>
                     <select name="semester" required>
@@ -111,255 +77,53 @@
                 </div>
                 <div class="form-group">
                     <label>Branch</label>
-            <select
-              name="branch"
-              id="reg-branch"
-              onchange="loadSections()"
-              required
-            >
-              <option value="">Select Branch</option>
-              <!-- Populated by JS -->
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Section</label>
-            <select name="section" id="reg-section" required>
-              <option value="">Select Section</option>
-            </select>
-          </div>
-          <button type="submit" class="btn-primary">Register</button>
-          <a onclick="toggleRegister()" class="toggle-link"
-            >Already have an account? Login</a
-          >
-        </form>
-      </div>
-
-      <!-- Professor Login -->
-      <div id="professor-login" class="auth-form hidden">
-        <h2>Professor Login</h2>
-        <form onsubmit="handleLogin(event, 'professor')">
-          <div class="form-group">
-            <label>Email ID</label>
-            <input type="email" name="email" required />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" required />
-            <div style="text-align: right; margin-top: 0.5rem;">
-                <a onclick="openForgotModal()" style="color:var(--secondary); font-size:0.8rem; cursor:pointer;">Forgot Password?</a>
-            </div>
-          </div>
-          <button type="submit" class="btn-primary">Login</button>
-        </form>
-      </div>
-
-      <!-- Warden Login -->
-      <div id="warden-login" class="auth-form hidden">
-        <h2>Warden Login</h2>
-        <form onsubmit="handleLogin(event, 'warden')">
-          <div class="form-group">
-            <label>Category</label>
-            <select name="wardenType" id="warden-type">
-              <option value="warden_hostel">Hostel Warden</option>
-              <option value="warden_mess">Mess Warden</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Email ID</label>
-            <input type="email" name="email" required />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••"
-              required
-            />
-            <div style="text-align: right; margin-top: 0.5rem;">
-                <a onclick="openForgotModal()" style="color:var(--secondary); font-size:0.8rem; cursor:pointer;">Forgot Password?</a>
-            </div>
-
-
-          </div>
-          <button type="submit" class="btn-primary">Login</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Registration Verification Modal -->
-    <div id="reg-verify-modal" class="modal-overlay hidden">
-        <div class="modal glass">
-             <h2 style="margin-bottom:1rem;">Verify Email</h2>
-             <p style="color:var(--text-muted); margin-bottom:1rem;">
-                A verification code has been sent to <b id="reg-email-display"></b>. 
-                Please enter it to complete registration.
-             </p>
-             <div class="form-group">
-                <label>OTP Code</label>
-                <input type="text" id="reg-otp" placeholder="123456" maxlength="6" style="letter-spacing: 5px; text-align:center; font-size:1.5rem;">
-             </div>
-             <button onclick="completeRegistration()" class="btn-primary">Verify & Register</button>
-             <button onclick="closeRegVerifyModal()" style="margin-top:1rem; background:transparent; border:none; color:var(--text-muted); width:100%; cursor:pointer;">Cancel</button>
+                    <select name="branch" id="reg-branch" onchange="loadSections()" required>
+                        <option value="">Select Branch</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <select name="section" id="reg-section" required>
+                        <option value="">Select Section</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Complete Setup</button>
+            </form>
         </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div id="forgot-password-modal" class="modal-overlay hidden">
-      <div class="modal glass">
-        <span onclick="closeForgotModal()" class="close-btn">&times;</span>
-        
-        <!-- Step 1: Email Input -->
-        <div id="fp-step-1">
-          <h2 style="margin-bottom:1rem;">Reset Password</h2>
-          <p style="color:var(--text-muted); margin-bottom:1rem;">Enter your registered email to receive an OTP.</p>
-          <div class="form-group">
-            <label>Email ID</label>
-            <input type="email" id="fp-email" placeholder="email@dtu.ac.in">
-          </div>
-          <button onclick="sendOTP()" class="btn-primary" id="btn-send-otp">Send OTP</button>
-        </div>
-
-        <!-- Step 2: OTP Verification -->
-        <div id="fp-step-2" class="hidden">
-           <h2 style="margin-bottom:1rem;">Verify OTP</h2>
-           <p style="color:var(--text-muted); margin-bottom:1rem;">Enter the 6-digit code sent to <span id="display-email"></span></p>
-           <div class="form-group">
-            <label>OTP Code</label>
-            <input type="text" id="fp-otp" placeholder="123456" maxlength="6" style="letter-spacing: 5px; text-align:center; font-size:1.5rem;">
-          </div>
-          <button onclick="verifyOTP()" class="btn-primary">Verify</button>
-          <p onclick="resetForgotFlow()" style="margin-top:1rem; cursor:pointer; color:var(--secondary); font-size:0.9rem;">Wrong Email?</p>
-        </div>
-
-        <!-- Step 3: New Password -->
-        <div id="fp-step-3" class="hidden">
-             <h2 style="margin-bottom:1rem;">New Password</h2>
-             <div class="form-group">
-                <label>New Password</label>
-                <input type="password" id="fp-new-pass" placeholder="******">
-            </div>
-             <button onclick="resetPasswordFinal()" class="btn-primary">Reset Password</button>
-        </div>
-
-      </div>
     </div>
 
 
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script>
-      // UI Logic for Index
-       
-      /* --- Forgot Password Logic --- */
-      let currentResetEmail = '';
-
-      function openForgotModal() {
-        document.getElementById('forgot-password-modal').classList.remove('hidden');
-        resetForgotFlow();
+      // Global callback for Google Sign-In (called by Google library)
+      function handleGoogleSignIn(response) {
+          Auth.handleGoogleSignIn(response);
       }
 
-      function closeForgotModal() {
-        document.getElementById('forgot-password-modal').classList.add('hidden');
+      function handleProfileCompletion(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const details = Object.fromEntries(formData.entries());
+
+          const result = Auth.registerGoogleUser(details);
+          if (result.success) {
+              alert("Profile completed! Welcome to DTU Scheduler.");
+          } else {
+              alert(result.message || "Failed to save profile.");
+          }
       }
 
-      function resetForgotFlow() {
-        document.getElementById('fp-step-1').classList.remove('hidden');
-        document.getElementById('fp-step-2').classList.add('hidden');
-        document.getElementById('fp-step-3').classList.add('hidden');
-        document.getElementById('fp-email').value = '';
-        document.getElementById('fp-otp').value = '';
-        document.getElementById('fp-new-pass').value = '';
-        currentResetEmail = '';
-      }
-
-      async function sendOTP() {
-        const email = document.getElementById('fp-email').value;
-        if(!email) return alert("Please enter email");
-        
-        const btn = document.getElementById('btn-send-otp');
-        const originalText = btn.textContent;
-        btn.textContent = "Sending...";
-        btn.disabled = true;
-
-        const result = await Auth.requestOTP(email);
-        
-        btn.textContent = originalText;
-        btn.disabled = false;
-
-        if(result.success) {
-            currentResetEmail = email;
-             document.getElementById('display-email').textContent = email;
-             document.getElementById('fp-step-1').classList.add('hidden');
-             document.getElementById('fp-step-2').classList.remove('hidden');
-        } else {
-            alert(result.message);
-        }
-      }
-
-      async function verifyOTP() {
-        const otp = document.getElementById('fp-otp').value;
-        if(!otp) return alert("Enter OTP");
-
-        const result = await Auth.verifyOTP(currentResetEmail, otp);
-        if(result.success) {
-             document.getElementById('fp-step-2').classList.add('hidden');
-             document.getElementById('fp-step-3').classList.remove('hidden');
-        } else {
-            alert(result.message);
-        }
-      }
-
-      function resetPasswordFinal() {
-        const newPass = document.getElementById('fp-new-pass').value;
-        if(!newPass) return alert("Enter new password");
-
-        const result = Auth.resetPassword(currentResetEmail, newPass);
-        if(result.success) {
-            alert("Password Reset Successfully! Please Login.");
-            closeForgotModal();
-        } else {
-            alert(result.message);
-        }
-      }
-      /* ----------------------------- */
-
-      function switchRole(role) {
-        document
-          .querySelectorAll(".auth-form")
-          .forEach((el) => el.classList.add("hidden"));
-        document
-          .querySelectorAll(".role-btn")
-          .forEach((el) => (el.style.opacity = "0.5"));
-
-        document.getElementById(`btn-${role}`).style.opacity = "1";
-
-        if (role === "student") {
-          document.getElementById("student-login").classList.remove("hidden");
-        } else if (role === "professor") {
-          document.getElementById("professor-login").classList.remove("hidden");
-        } else {
-          document.getElementById("warden-login").classList.remove("hidden");
-        }
-      }
-
-      function toggleRegister() {
-        document.getElementById("student-login").classList.toggle("hidden");
-        document.getElementById("student-register").classList.toggle("hidden");
-        populateBranches();
-      }
-
+      // Helper for UI
       function populateBranches() {
         const select = document.getElementById("reg-branch");
         if (select.options.length > 1) return; // already populated
         BRANCHES.forEach((b) => {
           const opt = document.createElement("option");
-          // Extract text inside last definition of parentheses
           const matches = b.match(/\(([^)]+)\)$/);
           const code = matches ? matches[1] : b;
-          
-          opt.value = code; // Use code (e.g. CSE) as value
-          opt.textContent = b; // Show full name
+          opt.value = code;
+          opt.textContent = b;
           select.appendChild(opt);
         });
       }
@@ -368,9 +132,7 @@
         const branch = document.getElementById("reg-branch").value;
         const sectionSelect = document.getElementById("reg-section");
         sectionSelect.innerHTML = '<option value="">Select Section</option>';
-
         const sections = SECTIONS[branch] || SECTIONS['default'];
-
         if (sections) {
           sections.forEach((s) => {
             const opt = document.createElement("option");
@@ -381,114 +143,10 @@
         }
       }
 
-      async function handleLogin(e, role) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const email = formData.get("email");
-        const password = formData.get("password");
-        let actualRole = role;
-
-        if (role === "warden") {
-          actualRole = document.getElementById("warden-type").value;
-        }
-
-        const result = Auth.login(email, password, actualRole);
-        if (result.success) {
-          // Redirect
-          if (role === "student")
-            window.location.href = "student/dashboard.html";
-          else if (role === "professor")
-            window.location.href = "professor/dashboard.html";
-          else window.location.href = "warden/dashboard.html";
-        } else {
-          alert(result.message);
-        }
-      }
-
-      /* --- Registration Verification Logic --- */
-      let pendingRegistrationDetails = null;
-
-      async function initiateRegistration(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const details = Object.fromEntries(formData.entries());
-
-        // 1. Validate Email Domain
-        // (Restriction removed as per user request)
-        /* 
-        if (!details.email.endsWith('@dtu.ac.in')) {
-            alert("Invalid Email! Please use your official @dtu.ac.in email address.");
-            return;
-        }
-        */
-
-        // 2. Request OTP
-        const btn = e.target.querySelector('button[type="submit"]');
-        const originalText = btn.textContent;
-        btn.textContent = "Sending Verification...";
-        btn.disabled = true;
-
-        const result = await Auth.requestOTP(details.email, true);
-        
-        btn.textContent = originalText;
-        btn.disabled = false;
-
-        if (result.success) {
-            pendingRegistrationDetails = details;
-            document.getElementById('reg-email-display').textContent = details.email;
-            document.getElementById('reg-verify-modal').classList.remove('hidden');
-        } else {
-            alert(result.message);
-        }
-      }
-
-      async function completeRegistration() {
-        const otp = document.getElementById('reg-otp').value;
-        if (!otp) return alert("Please enter the verification code");
-
-        // 3. Verify OTP
-        const verifyResult = await Auth.verifyOTP(pendingRegistrationDetails.email, otp);
-        
-        if (verifyResult.success) {
-            // 4. Create Account
-            const registerResult = Auth.register(pendingRegistrationDetails);
-            
-            if (registerResult.success) {
-                alert("Registration Successful! You can now login.");
-                closeRegVerifyModal();
-                toggleRegister(); // Switch back to login view
-            } else {
-                alert(registerResult.error);
-            }
-        } else {
-            alert("Invalid Verification Code");
-        }
-      }
-
-      function closeRegVerifyModal() {
-        document.getElementById('reg-verify-modal').classList.add('hidden');
-        document.getElementById('reg-otp').value = '';
-        pendingRegistrationDetails = null;
-      }
-      /* --------------------------------------- */
-
-      function handleRegister(e) {
-         // Replaced by initiateRegistration
-         e.preventDefault();
-      }
-
-      // Initialize styled buttons
-      document.querySelectorAll(".role-btn").forEach((btn) => {
-        btn.style.background = "transparent";
-        btn.style.border = "1px solid var(--text-muted)";
-        btn.style.color = "var(--text-muted)";
-        btn.style.padding = "5px 10px";
-        btn.style.borderRadius = "20px";
-        btn.style.cursor = "pointer";
-      });
-      document.getElementById("btn-student").style.borderColor =
-        "var(--primary)";
-      document.getElementById("btn-student").style.color = "var(--primary)";
+      // Initialize
+      window.onload = () => {
+          populateBranches();
+      };
     </script>
 
   </body>

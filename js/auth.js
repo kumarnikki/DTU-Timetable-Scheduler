@@ -1,33 +1,77 @@
 /**
- * Auth Logic
+ * Auth Logic - Google Sign-In Updated
  */
 
 const Auth = {
-    // API Configuration
-    // CHANGE THIS URL WHEN DEPLOYING:
-    // Local: 'http://localhost:3000'
-    // Production: 'https://dtu-timetable-schedular-backend.onrender.com'
-    API_BASE_URL: 'https://dtu-timetable-schedular-backend.onrender.com', 
-    
     key: 'currentUser',
 
-    login: (email, password, role) => {
-        const user = DB.findUser(email, password);
-        if (user && user.role === role) {
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            return { success: true, user: user };
+    // Callback for Google Sign-In
+    handleGoogleSignIn: async (response) => {
+        try {
+            // 1. Decode JWT (Google credential)
+            const payload = Auth.parseJwt(response.credential);
+            const { email, name, picture } = payload;
+
+            // 2. Check if user exists in DB
+            const db = DB.get();
+            let user = db.users.find(u => u.email === email);
+
+            if (user) {
+                // User exists -> Login
+                Auth.sessionLogin(user);
+            } else {
+                // New User -> Show Profile Completion Modal
+                window.pendingGoogleUser = { email, name, picture };
+                document.getElementById('profile-completion-modal').classList.remove('hidden');
+                populateBranches(); // Ensure branches are loaded for the modal
+            }
+        } catch (error) {
+            console.error('Auth Error:', error);
+            alert("Google Sign-In failed. Please try again.");
         }
-        return { success: false, message: 'Invalid credentials' };
     },
-    
-    register: (details) => {
-        // Simple registration for students
+
+    // Helper to decode Google JWT
+    parseJwt: (token) => {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    },
+
+    // Save user to session and redirect
+    sessionLogin: (user) => {
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // Redirect based on role
+        if (user.role === 'student') window.location.href = "student/dashboard.html";
+        else if (user.role === 'professor') window.location.href = "professor/dashboard.html";
+        else window.location.href = "warden/dashboard.html";
+    },
+
+    registerGoogleUser: (details) => {
+        if (!window.pendingGoogleUser) return { success: false, message: 'No session found' };
+
         const newUser = {
             id: details.rollNo,
             role: 'student',
+            name: window.pendingGoogleUser.name,
+            email: window.pendingGoogleUser.email,
+            picture: window.pendingGoogleUser.picture,
             ...details
         };
-        return DB.registerUser(newUser);
+
+        const result = DB.registerUser(newUser);
+        if (result.success) {
+            Auth.sessionLogin(newUser);
+        }
+        return result;
     },
 
     logout: () => {
@@ -42,67 +86,21 @@ const Auth = {
     checkAuth: () => {
         const user = sessionStorage.getItem('currentUser');
         if (!user) {
-           window.location.href = '../index.html';
+           const pathPrefix = window.location.pathname.includes('/student/') || 
+                             window.location.pathname.includes('/professor/') || 
+                             window.location.pathname.includes('/warden/') ? '../' : '';
+           window.location.href = pathPrefix + 'index.html';
            return null;
         }
         return JSON.parse(user);
-    },
-
-    // --- Forgot Password Methods (Connected to Node.js Backend) ---
-
-    // Request OTP from Backend
-    requestOTP: async (email, isRegistration = false) => {
-        try {
-            // Check DB based on context
-            const db = DB.get();
-            const userExists = db.users.some(u => u.email === email);
-
-            if (isRegistration) {
-                if (userExists) return { success: false, message: 'Email already registered!' };
-            } else {
-                if (!userExists) return { success: false, message: 'Email not found!' };
-            }
-
-            const type = isRegistration ? 'register' : 'reset';
-
-            const response = await fetch(`${Auth.API_BASE_URL}/api/send-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, type })
-            });
-            return await response.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            return { success: false, message: 'Failed to connect to email server. Ensure server is running.' };
-        }
-    },
-
-    verifyOTP: async (email, otp) => {
-        try {
-            const response = await fetch(`${Auth.API_BASE_URL}/api/verify-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp })
-            });
-            return await response.json();
-        } catch (error) {
-             return { success: false, message: 'Verification failed.' };
-        }
-    },
-
-    resetPassword: (email, newPassword) => {
-        return DB.updateUser(email, newPassword);
     },
 
     updateProfile: (details) => {
         const currentUser = Auth.getCurrentUser();
         if(!currentUser) return { success: false, message: 'Not logged in' };
         
-        // Update DB
         const result = DB.updateUser(currentUser.email, details);
-        
         if(result.success) {
-            // Update Session
             sessionStorage.setItem('currentUser', JSON.stringify(result.user));
             return { success: true };
         }
