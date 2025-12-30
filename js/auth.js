@@ -5,6 +5,23 @@
 const Auth = {
     key: 'currentUser',
 
+    login: (email, password) => {
+        const user = DB.findUser(email, password);
+        if (user) {
+            return { success: true, user: user };
+        }
+        return { success: false, message: 'Invalid email or password.' };
+    },
+
+    register: (details) => {
+        const newUser = {
+            id: details.rollNo,
+            role: 'student',
+            ...details
+        };
+        return DB.registerUser(newUser);
+    },
+
     // Callback for Google Sign-In
     handleGoogleSignIn: async (response) => {
         try {

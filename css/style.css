@@ -321,3 +321,17 @@ button.btn-primary:hover {
     color: var(--text-main);
 }
 
+/* Auth Toggle */
+.auth-toggle button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-toggle button:not(.active):hover {
+    color: var(--text-main) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.auth-toggle button.active {
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+

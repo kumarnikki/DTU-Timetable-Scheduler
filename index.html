@@ -15,15 +15,21 @@
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <div class="glass auth-container" style="margin-top: 5vh">
-      <div class="logo">DTU Scheduler</div>
+    <div class="glass auth-container" style="margin-top: 5vh; min-width: 400px;">
+      <div class="logo" style="margin-bottom: 2rem;">DTU Scheduler</div>
 
-      <!-- Main Login Section -->
-      <div id="auth-main" class="auth-form" style="text-align: center; padding: 2rem 0;">
-        <h2 style="margin-bottom: 0.5rem;">Welcome back!</h2>
+      <!-- Auth Toggle -->
+      <div class="auth-toggle" style="display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 25px; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+         <button onclick="switchAuthState('login')" id="toggle-login-btn" class="active" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: var(--primary); color: white; cursor: pointer; transition: 0.3s; font-weight: 500;">Login</button>
+         <button onclick="switchAuthState('register')" id="toggle-register-btn" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.3s; font-weight: 500;">Sign Up</button>
+      </div>
+
+      <!-- Login View -->
+      <div id="login-view" class="auth-form" style="text-align: center;">
+        <h2 style="margin-bottom: 0.5rem; font-size: 2rem;">Welcome back!</h2>
         <p style="color:var(--text-muted); margin-bottom: 2rem;">Sign in with your Google account to continue.</p>
         
-        <!-- Google Sign-In Button Container -->
+        <!-- Google Button -->
         <div id="g_id_onload"
              data-client_id="172073707110-obe0voq806ffr2n2jthgl6tnclbsde8g.apps.googleusercontent.com"
              data-context="signin"
@@ -31,22 +37,94 @@
              data-callback="handleGoogleSignIn"
              data-auto_prompt="false">
         </div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left" style="display: flex; justify-content: center;"></div>
 
-        <div class="g_id_signin"
-             data-type="standard"
-             data-shape="pill"
-             data-theme="outline"
-             data-text="signin_with"
-             data-size="large"
-             data-logo_alignment="left"
-             style="display: flex; justify-content: center;">
+        <div style="margin: 1.5rem 0; display: flex; align-items: center; color: var(--text-muted); font-size: 0.8rem;">
+            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
+            <div style="padding: 0 10px;">OR</div>
+            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
         </div>
 
-        <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-            <p style="color:var(--text-muted); font-size: 0.85rem;">
-                By signing in, you agree to the usage of your DTU email for timetable synchronization.
-            </p>
+        <form onsubmit="handleManualLogin(event)">
+            <div class="form-group" style="text-align: left;">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="name@dtu.ac.in" required />
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••" required />
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+        </form>
+      </div>
+
+      <!-- Register View (Hidden by default) -->
+      <div id="register-view" class="auth-form hidden" style="text-align: center;">
+        <h2 style="margin-bottom: 0.5rem; font-size: 2rem;">Create your account</h2>
+        <p style="color:var(--text-muted); margin-bottom: 2rem;">Sign up with Google for a faster setup.</p>
+        
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signup_with" data-size="large" data-logo_alignment="left" style="display: flex; justify-content: center;"></div>
+
+        <div style="margin: 1.5rem 0; display: flex; align-items: center; color: var(--text-muted); font-size: 0.8rem;">
+            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
+            <div style="padding: 0 10px;">OR</div>
+            <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
         </div>
+
+        <form onsubmit="handleManualRegister(event)" style="text-align: left;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" required />
+                </div>
+                <div class="form-group">
+                    <label>Roll No</label>
+                    <input type="text" name="rollNo" placeholder="2K24/..." required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email ID</label>
+                <input type="email" name="email" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>Branch</label>
+                    <select name="branch" id="reg-branch-manual" onchange="loadSectionsManual()" required>
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select name="semester" required>
+                        <option value="1">1st</option>
+                        <option value="2">2nd</option>
+                        <option value="3">3rd</option>
+                        <option value="4">4th</option>
+                        <option value="5">5th</option>
+                        <option value="6">6th</option>
+                        <option value="7">7th</option>
+                        <option value="8">8th</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Section</label>
+                <select name="section" id="reg-section-manual" required>
+                    <option value="">Select Section</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+        </form>
+      </div>
+
+      <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+        <p style="color:var(--text-muted); font-size: 0.75rem;">
+            By continuing, you agree to the usage of your DTU email for timetable synchronization.
+        </p>
       </div>
     </div>
 
@@ -96,9 +174,65 @@
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script>
-      // Global callback for Google Sign-In (called by Google library)
+      function switchAuthState(state) {
+          const isLogin = state === 'login';
+          document.getElementById('login-view').classList.toggle('hidden', !isLogin);
+          document.getElementById('register-view').classList.toggle('hidden', isLogin);
+          
+          // Toggle Buttons
+          const loginBtn = document.getElementById('toggle-login-btn');
+          const registerBtn = document.getElementById('toggle-register-btn');
+          
+          if(isLogin) {
+              loginBtn.classList.add('active');
+              loginBtn.style.background = 'var(--primary)';
+              loginBtn.style.color = 'white';
+              registerBtn.classList.remove('active');
+              registerBtn.style.background = 'transparent';
+              registerBtn.style.color = 'var(--text-muted)';
+          } else {
+              registerBtn.classList.add('active');
+              registerBtn.style.background = 'var(--primary)';
+              registerBtn.style.color = 'white';
+              loginBtn.classList.remove('active');
+              loginBtn.style.background = 'transparent';
+              loginBtn.style.color = 'var(--text-muted)';
+              populateBranchesManual();
+          }
+      }
+
+      // Global callback for Google Sign-In
       function handleGoogleSignIn(response) {
           Auth.handleGoogleSignIn(response);
+      }
+
+      // Manual Flow Handlers
+      function handleManualLogin(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const email = formData.get('email');
+          const password = formData.get('password');
+          
+          const result = Auth.login(email, password);
+          if (result.success) {
+              Auth.sessionLogin(result.user);
+          } else {
+              alert(result.message);
+          }
+      }
+
+      function handleManualRegister(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const details = Object.fromEntries(formData.entries());
+          
+          const result = Auth.register(details);
+          if (result.success) {
+              alert("Account created successfully!");
+              Auth.sessionLogin({ ...details, role: 'student', id: details.rollNo });
+          } else {
+              alert(result.error || result.message);
+          }
       }
 
       function handleProfileCompletion(e) {
@@ -114,38 +248,53 @@
           }
       }
 
-      // Helper for UI
+      // Population Helpers
       function populateBranches() {
+        // Modal Branch Population
         const select = document.getElementById("reg-branch");
-        if (select.options.length > 1) return; // already populated
-        BRANCHES.forEach((b) => {
+        if (!select || select.options.length > 1) return;
+        BRANCHES.forEach(b => addOption(select, b));
+      }
+
+      function populateBranchesManual() {
+        // Main Form Branch Population
+        const select = document.getElementById("reg-branch-manual");
+        if (!select || select.options.length > 1) return;
+        BRANCHES.forEach(b => addOption(select, b));
+      }
+
+      function addOption(select, b) {
           const opt = document.createElement("option");
           const matches = b.match(/\(([^)]+)\)$/);
-          const code = matches ? matches[1] : b;
-          opt.value = code;
+          opt.value = matches ? matches[1] : b;
           opt.textContent = b;
           select.appendChild(opt);
-        });
       }
 
       function loadSections() {
-        const branch = document.getElementById("reg-branch").value;
-        const sectionSelect = document.getElementById("reg-section");
-        sectionSelect.innerHTML = '<option value="">Select Section</option>';
-        const sections = SECTIONS[branch] || SECTIONS['default'];
-        if (sections) {
-          sections.forEach((s) => {
-            const opt = document.createElement("option");
-            opt.value = s;
-            opt.textContent = s;
-            sectionSelect.appendChild(opt);
-          });
-        }
+          const branch = document.getElementById("reg-branch").value;
+          updateSectionSelect(document.getElementById("reg-section"), branch);
       }
 
-      // Initialize
+      function loadSectionsManual() {
+          const branch = document.getElementById("reg-branch-manual").value;
+          updateSectionSelect(document.getElementById("reg-section-manual"), branch);
+      }
+
+      function updateSectionSelect(select, branch) {
+          select.innerHTML = '<option value="">Select Section</option>';
+          const sections = SECTIONS[branch] || SECTIONS['default'];
+          if (sections) {
+              sections.forEach(s => {
+                  const opt = document.createElement("option");
+                  opt.value = opt.textContent = s;
+                  select.appendChild(opt);
+              });
+          }
+      }
+
       window.onload = () => {
-          populateBranches();
+          populateBranches(); // For modal
       };
     </script>
 
