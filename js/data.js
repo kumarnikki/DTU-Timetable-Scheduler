@@ -90,9 +90,8 @@ const MOCK_DB = {
         { id: 'admin', role: 'admin', name: 'Admin', email: 'admin@dtu.ac.in', password: 'admin' },
         { id: 'demo123', role: 'student', name: 'Demo Student', email: 'student@dtu.ac.in', password: 'pass', branch: 'CSE', section: 'A1', semester: '2' },
         { id: '2K25/CSE/01', role: 'student', name: 'John Doe', email: 'john@dtu.ac.in', password: 'pass', branch: 'CSE', section: 'A1', semester: '2' },
-        { id: 'W001', role: 'warden_hostel', name: 'Mr. Sharma', email: 'hostel@dtu.ac.in', password: 'pass', hostel: 'Aryabhatta' },
-        { id: 'M001', role: 'warden_mess', name: 'Mrs. Gupta', email: 'mess@dtu.ac.in', password: 'pass', mess: 'Aryabhatta Mess' },
-        { id: 'P001', role: 'professor', name: 'Dr. Vineet Kumar', email: 'professor@dtu.ac.in', password: 'pass', dept: 'CSE' } // Updated based on image
+        { id: 'W001', role: 'warden_hostel', name: 'Demo Warden', email: 'warden@dtu.ac.in', password: 'pass', hostel: 'Aryabhatta' },
+        { id: 'P001', role: 'professor', name: 'Dr. Vineet Kumar', email: 'prof@dtu.ac.in', password: 'pass', dept: 'CSE' }
     ],
     // "classes" array will be generated dynamically from TIMETABLE_SKELETON for backward compatibility/ease of use in app logic
     classes: [], 
@@ -113,7 +112,7 @@ const DB = {
              localStorage.setItem('dtu_data_v2', JSON.stringify(MOCK_DB));
         } else {
             // SYNC FIX: Ensure demo users exist even if LS has old data
-            ['demo123', 'P001'].forEach(uid => { // Sync Student & Professor
+            ['demo123', 'P001', 'W001'].forEach(uid => { // Sync Student, Prof & Warden
                 const user = MOCK_DB.users.find(u => u.id === uid);
                 if(user) {
                     // Remove old version if exists (to update email/pass)
