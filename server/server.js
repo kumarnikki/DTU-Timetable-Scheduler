@@ -14,10 +14,15 @@ try {
     // If local config exists, use it as fallback or override
     config.EMAIL_USER = config.EMAIL_USER || localConfig.EMAIL_USER;
     config.EMAIL_PASS = config.EMAIL_PASS || localConfig.EMAIL_PASS;
+    console.log('Loaded local config.js');
 } catch (e) {
     // config.js not found (Expected in Production/Render)
-    console.log('Using Environment Variables for Configuration');
+    console.log('config.js not found, using Environment Variables');
 }
+
+// DIAGNOSTIC LOG (Masked)
+console.log('EMAIL_USER check:', config.EMAIL_USER ? `Defined (${config.EMAIL_USER.substring(0, 3)}...)` : 'UNDEFINED');
+console.log('EMAIL_PASS check:', config.EMAIL_PASS ? 'Defined (*******)' : 'UNDEFINED');
 
 const app = express();
 // Render requires binding to process.env.PORT
@@ -32,15 +37,21 @@ app.use(bodyParser.json());
 const otpStore = new Map();
 
 // Email Transporter (Gmail)
-// Use Port 465 (SSL) to avoid timeouts on Render
+// More resilient configuration for cloud platforms
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, 
+    secure: true,
     auth: {
         user: config.EMAIL_USER,
         pass: config.EMAIL_PASS
-    }
+    },
+    tls: {
+        rejectUnauthorized: false // Helps if there are cert issues in the container
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000
 });
 
 // 1. Send OTP Endpoint
